@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayStation 3 XMB Expérience</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: white;
+        }
+
+        /* Fond d'écran animé ou vidéo de gameplay */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .bg-wave {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientWave 15s ease infinite;
+        }
+
+        @keyframes gradientWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        iframe.active {
+            opacity: 1;
+        }
+
+        /* Interface XMB */
+        .xmb-interface {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(2px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Statut Manette */
+        .gamepad-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Barre Horizontale (Catégories) */
+        .horizontal-menu {
+            display: flex;
+            position: absolute;
+            left: 20%;
+            top: 30%;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .category {
+            width: 80px;
+            text-align: center;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+            font-size: 24px;
+        }
+
+        .category.selected {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* Barre Verticale (Jeux) */
+        .vertical-menu {
+            position: absolute;
+            left: 20%;
+            top: 45%;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .vertical-menu.active {
+            display: flex;
+        }
+
+        .game-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            opacity: 0.5;
+            transition: all 0.2s ease;
+            border-left: 0px solid #fff;
+        }
+
+        .game-item.selected {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(10px);
+            border-left: 4px solid #fff;
+        }
+
+        .game-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        /* Instructions à l'écran */
+        .footer-hints {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ZONE CONTENU (Vagues ou Gameplay) -->
+    <div class="background-container">
+        <div id="waveBg" class="bg-wave"></div>
+        <!-- Intégration de vidéos YouTube en arrière-plan sans contrôles -->
+        <iframe id="gameplayVideo" src="" allow="autoplay; encrypted-media"></iframe>
+    </div>
+
+    <!-- INTERFACE XMB -->
+    <div class="xmb-interface">
+        <div class="gamepad-status" id="gamepadStatus">Manette déconnectée (Utilise les flèches du clavier)</div>
+
+        <!-- Catégories (Ici simplifié avec Paramètres et Jeu) -->
+        <div class="horizontal-menu" id="horizontalMenu">
+            <div class="category" data-index="0">⚙️</div>
+            <div class="category selected" data-index="1">🎮</div>
+            <div class="category" data-index="2">🌐</div>
+        </div>
+
+        <!-- Liste des Jeux (Sous la catégorie 🎮) -->
+        <div class="vertical-menu active" id="verticalMenu">
+            <div class="game-item selected" data-video="https://www.youtube.com/embed/OQUTt1Z5M24?autoplay=1&controls=0&mute=1&loop=1">
+                <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=100" alt="GTA V">
+                <div>
+                    <strong>GTA V</strong>
+                    <p style="font-size: 12px; opacity: 0.7;">Appuie sur X (A) pour lancer le gameplay</p>
+                </div>
+            </div>
+            <div class="game-item" data-video="https://www.youtube.com/embed/H2EEClFy-_c?autoplay=1&controls=0&mute=1&loop=1">
+                <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=100" alt="The Last of Us">
+                <div>
+                    <strong>The Last of Us</strong>
+                    <p style="font-size: 12px; opacity: 0.7;">Le chef-d'œuvre de Naughty Dog</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-hints">🕹️ Flèches / Joystick pour naviguer | Entrée / Bouton A pour lancer</div>
+    </div>
+
+    <script>
+        // Variables d'état
+        let currentGameIndex = 0;
+        const games = document.querySelectorAll('.game-item');
+        const videoPlayer = document.getElementById('gameplayVideo');
+        const gamepadStatus = document.getElementById('gamepadStatus');
+
+        // 1. GESTION DU CLAVIER (Pour tester sur PC/Mobile si pas de manette)
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') moveSelection(1);
+            if (e.key === 'ArrowUp') moveSelection(-1);
+            if (e.key === 'Enter') launchGameplay();
+            if (e.key === 'Escape') stopGameplay();
+        });
+
+        function moveSelection(direction) {
+            games[currentGameIndex].classList.remove('selected');
+            currentGameIndex = (currentGameIndex + direction + games.length) % games.length;
+            games[currentGameIndex].classList.add('selected');
+        }
+
+        function launchGameplay() {
+            const videoUrl = games[currentGameIndex].getAttribute('data-video');
+            videoPlayer.src = videoUrl;
+            videoPlayer.classList.add('active');
+        }
+
+        function stopGameplay() {
+            videoPlayer.src = "";
+            videoPlayer.classList.remove('active');
+        }
+
+        // 2. API MANETTE (Connexion Bluetooth sur Téléphone ou PC)
+        let gamepadIndex = null;
+
+        window.addEventListener("gamepadconnected", (e) => {
+            gamepadIndex = e.gamepad.index;
+            gamepadStatus.innerText = "🎮 Manette connectée : " + e.gamepad.id.substring(0, 15) + "...";
+            gamepadLoop();
+        });
+
+        window.addEventListener("gamepaddisconnected", (e) => {
+            gamepadIndex = null;
+            gamepadStatus.innerText = "Manette déconnectée";
+        });
+
+        // Anti-répétition trop rapide pour le joystick/boutons
+        let buttonPressed = false;
+
+        function gamepadLoop() {
+            if (gamepadIndex === null) return;
+            const gp = navigator.getGamepads()[gamepadIndex];
+
+            // Détection du D-Pad (Croix directionnelle) ou Joystick Gauche (Axe 1)
+            const axisValue = gp.axes[1]; 
+            const dpadUp = gp.buttons[12]?.pressed;
+            const dpadDown = gp.buttons[13]?.pressed;
+
+            if (!buttonPressed) {
+                if (dpadDown || axisValue > 0.5) {
+                    moveSelection(1);
+                    buttonPressed = true;
+                } else if (dpadUp || axisValue < -0.5) {
+                    moveSelection(-1);
+                    buttonPressed = true;
+                } else if (gp.buttons[0].pressed) { // Bouton A (Xbox) / Croix (Playstation)
+                    launchGameplay();
+                    buttonPressed = true;
+                } else if (gp.buttons[1].pressed) { // Bouton B (Xbox) / Rond (Playstation)
+                    stopGameplay();
+                    buttonPressed = true;
+                }
+            }
+
+            // Relâcher la sécurité si aucun bouton n'est actif
+            if (!dpadDown && !dpadUp && Math.abs(axisValue) < 0.2 && !gp.buttons[0].pressed && !gp.buttons[1].pressed) {
+                buttonPressed = false;
+            }
+
+            requestAnimationFrame(gamepadLoop);
+        }
+    </script>
+</body>
+</html>
